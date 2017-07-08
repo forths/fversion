@@ -2,48 +2,77 @@
 {% block head %}
     <script>
 	$(function () {
+
 	    var error_name=false;
 	    var error_pwd=false;
+
 		$('form').submit(function () {
 			$('#username').blur();
-            if('{{ error_p }}'!=''){
-                error_pwd = false;
-                $('.pwd_error').html('{{ error_p }}').show();
-            }
+			{#当用户名格式正确且存在的时候，验证密码格式#}
+			if(error_name){
+            $('#pwd').blur();
+        };
+
+{#			用户名和密码格式正确且用户名存在的情况下才允许提交#}
+
 			return error_name && error_pwd;
         });
-
-		$('#username').blur(function () {
-		    var name = $("#username").val();
-			var name_len=name.length;
-			if(name_len<5 || name_len>20){
-			    $('.user_error').html('请输入5-20个字符的用户名').show();
-			    error_name=false;
-			}else{
-			    $.get('/user/register_valid/',{'uname': name},function (data) {
-                    if(data.valid == '0'){
-                        $('.user_error').html('用户名不存在！').show();
-                    }else{
-                        $('.user_error').html('').hide();
-                        error_name=true;
-                    }
-                });
-			    error_name=true;
-			}
-        });
-        if(error_name){
-            $('#pwd').blur(function () {
-			var pwd_len=$('#pwd').val().length;
+		$('#pwd').blur(function () {
+		    var pwd_len=$('#pwd').val().length;
 			if(pwd_len<8||pwd_len>20){
 			    $('.pwd_error').html('密码最少8位，最长20位').show();
 			    error_pwd= false;
 			}else{
 			    $('.pwd_error').html('').hide();
 			    error_pwd= true;
+			    if('{{ error_p }}'!=''){
+			    alert({{ error_p }})
+                error_pwd = false;
+                $('.pwd_error').html('{{ error_p }}').show();
+            }
 			}
-        });
-        }
 
+        });
+
+		$('#username').blur(function () {
+			var name_len=$("#username").val().length;
+			if(name_len<5 || name_len>20){
+			    $('.user_error').html('请输入5-20个字符的用户名').show();
+			    error_name = false;
+			}else{
+			    $('.user_error').html('').hide();
+			    error_name = testName();
+
+                }
+        });
+
+    function testPwd(){
+
+    }
+    function testName() {
+    var name = $("#username").val();
+    //定义一个全局变量来接受$post的返回值
+    var result = false;
+    //用ajax的“同步方式”调用一般处理程序
+    $.ajax({
+        url: "/user/register_valid/",
+        async: false,//改为同步方式
+        type: "GET",
+        data: { 'uname': name },
+        success: function (data) {
+
+            if(data.valid == '0'){
+                        $('.user_error').html('用户名不存在！').show();
+                        result = false;
+                    }else{
+                        $('.user_error').html('').hide();
+                        console.log('说我是正确的而用户名，true')
+                        result = true;
+                    }
+        }
+    });
+    return result;
+}
 
     });
 </script>
