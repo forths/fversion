@@ -58,11 +58,12 @@ def login_handle(request):
     upwd_sha1 = s1.hexdigest()
     if result[0].upwd == upwd_sha1:
         # 登录成功
-        response = redirect(request.session.get('url_path', '/user/userinfo'))
-        print response
+        response = redirect(request.session.get('url_path', '/'))
+
         request.session['uid'] = result[0].id
+        request.session['uname'] = result[0].uname
         # 记住用户名
-        if ujz == '1':
+        if ujz == 'on':
             response.set_cookie('uname', uname, expires=datetime.datetime.now() + datetime.timedelta(days=14))
         else:
             response.set_cookie('uname', '', max_age=-1)
@@ -83,7 +84,7 @@ def logout(request):
 def userinfo(request):
     user = UserInfo.objects.get(pk=request.session['uid'])
 
-    context = {'user': user, 'wtitle': '个人中心'}
+    context = {'user': user, 'wtitle': '个人信息'}
     return render(request, 'user_ops/userinfo.html', context)
 
 
@@ -95,6 +96,18 @@ def user_center_order(request):
 
 @login_decrator.user_islogin
 def user_center_site(request):
+    user = UserInfo.objects.get(pk=request.session['uid'])
+    if request.method == 'POST':
+        post = request.POST
+        ushou = post.get('ushou')
+        uaddress = post.get('uaddress')
+        ucode = post.get('ucode')
+        uphone = post.get('uphone')
 
-    context = {'wtitle': '收货地址'}
+        user.ushou = ushou
+        user.uaddress = uaddress
+        user.ucode = ucode
+        user.uphone = uphone
+        user.save()
+    context = {'user': user, 'wtitle': '收货地址'}
     return render(request, 'user_ops/user_center_site.html', context)
