@@ -80,6 +80,13 @@ def logout(request):
     return redirect('/user/login/')
 
 
+def islogin(request):
+    result=0
+    if request.session.has_key('uid'):
+        result=1
+    return JsonResponse({'islogin': result})
+
+
 @login_decrator.user_islogin
 def userinfo(request):
     user = UserInfo.objects.get(pk=request.session['uid'])

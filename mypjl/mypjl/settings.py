@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'goods_ops',
     'tinymce',
     'haystack',
+    'cart_ops',
 )
 
 MIDDLEWARE_CLASSES = (
